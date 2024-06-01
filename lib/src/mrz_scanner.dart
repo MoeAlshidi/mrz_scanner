@@ -3,6 +3,7 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import 'package:mrz_scanner/mrz_scanner.dart';
 import 'camera_view.dart';
 import 'mrz_helper.dart';
+import 'package:camera/camera.dart';
 
 class MRZScanner extends StatefulWidget {
   const MRZScanner({
@@ -11,7 +12,7 @@ class MRZScanner extends StatefulWidget {
     this.initialDirection = CameraLensDirection.back,
     this.showOverlay = true,
   }) : super(key: controller);
-  final Function(MRZResult mrzResult, List<String> lines) onSuccess;
+  final Function(ScannedDoc mrzResult) onSuccess;
   final CameraLensDirection initialDirection;
   final bool showOverlay;
   @override
@@ -24,6 +25,7 @@ class MRZScannerState extends State<MRZScanner> {
   bool _canProcess = true;
   bool _isBusy = false;
   List result = [];
+  ScannedDoc? _scannedDoc;
 
   void resetScanning() => _isBusy = false;
 
@@ -43,18 +45,20 @@ class MRZScannerState extends State<MRZScanner> {
     );
   }
 
-  void _parseScannedText(List<String> lines) {
+  void _parseScannedText(List<String> lines, var filePath) {
     try {
       final data = MRZParser.parse(lines);
       _isBusy = true;
-
-      widget.onSuccess(data, lines);
+      _scannedDoc = ScannedDoc(result: data, filePath: filePath);
+      widget.onSuccess(_scannedDoc!);
     } catch (e) {
+      _scannedDoc = null;
       _isBusy = false;
     }
   }
 
-  Future<void> _processImage(InputImage inputImage) async {
+  Future<void> _processImage(
+      InputImage inputImage, CameraController controller) async {
     if (!_canProcess) return;
     if (_isBusy) return;
     _isBusy = true;
@@ -73,9 +77,20 @@ class MRZScannerState extends State<MRZScanner> {
     List<String>? result = MRZHelper.getFinalListToParse([...ableToScanText]);
 
     if (result != null) {
-      _parseScannedText([...result]);
+      var filePath = await controller.takePicture();
+      _parseScannedText([...result], filePath);
     } else {
       _isBusy = false;
     }
   }
+}
+
+class ScannedDoc {
+  MRZResult result;
+  var filePath;
+
+  ScannedDoc({
+    required this.result,
+    required this.filePath,
+  });
 }

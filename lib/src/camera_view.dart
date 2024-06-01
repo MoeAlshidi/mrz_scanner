@@ -12,7 +12,7 @@ class MRZCameraView extends StatefulWidget {
     required this.showOverlay,
   }) : super(key: key);
 
-  final Function(InputImage inputImage) onImage;
+  final Function(InputImage inputImage, CameraController controller) onImage;
   final CameraLensDirection initialDirection;
   final bool showOverlay;
 
@@ -168,6 +168,6 @@ class _MRZCameraViewState extends State<MRZCameraView> {
     final inputImage =
         InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
 
-    widget.onImage(inputImage);
+    widget.onImage(inputImage, _controller!);
   }
 }
