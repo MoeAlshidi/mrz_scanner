@@ -4,13 +4,13 @@ class MRZHelper {
       // minimum length of any MRZ format is 2 lines
       return null;
     }
-    int lineLength = ableToScanTextList.first.length;
-    for (var e in ableToScanTextList) {
-      if (e.length != lineLength) {
-        return null;
-      }
-      // to make sure that all lines are the same in length
-    }
+    // int lineLength = ableToScanTextList.first.length;
+    // for (var e in ableToScanTextList) {
+    //   if (e.length != lineLength) {
+    //     return null;
+    //   }
+    //   // to make sure that all lines are the same in length
+    // }
     List<String> firstLineChars = ableToScanTextList.first.split('');
     List<String> supportedDocTypes = ['A', 'C', 'P', 'V', 'I'];
     String fChar = firstLineChars[0];
